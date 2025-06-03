@@ -1,8 +1,8 @@
 // アプリケーション設定
 const CONFIG = {
     // Google APIs (後で設定)
-    GOOGLE_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID',
-    GOOGLE_API_KEY: 'YOUR_GOOGLE_API_KEY',
+    GOOGLE_CLIENT_ID: '765026500070-bdq5fb390j51i1m42eq1qiguhltbsmhf.apps.googleusercontent.com',
+    GOOGLE_API_KEY: 'AIzaSyD99uYN-f8u9HiGlED5BjFVBgAryJWiBgM',
     SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID',
     
     // アプリ設定
