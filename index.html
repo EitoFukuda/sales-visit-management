@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訪問営業管理システム</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Maps API (後で設定) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- ローディング画面 -->
+        <div id="loading" class="screen active">
+            <div class="loading-content">
+                <h1>🚗 訪問営業管理システム</h1>
+                <div class="spinner"></div>
+                <p>読み込み中...</p>
+            </div>
+        </div>
+
+        <!-- ログイン画面 -->
+        <div id="login" class="screen">
+            <div class="login-container">
+                <h1>🏢 ログイン</h1>
+                <p>Googleアカウントでログインしてください</p>
+                <button id="loginBtn" class="btn btn-primary">
+                    📧 Googleでログイン
+                </button>
+            </div>
+        </div>
+
+        <!-- メインダッシュボード -->
+        <div id="dashboard" class="screen">
+            <header class="header">
+                <h1>📅 今日の訪問予定</h1>
+                <div class="user-info">
+                    <span id="userName">ユーザー名</span>
+                    <button id="logoutBtn" class="btn btn-small">ログアウト</button>
+                </div>
+            </header>
+
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="today">今日の予定</button>
+                <button class="nav-tab" data-tab="map">地図</button>
+                <button class="nav-tab" data-tab="history">履歴</button>
+                <button class="nav-tab" data-tab="analytics">分析</button>
+            </nav>
+
+            <!-- 今日の予定タブ -->
+            <div id="today" class="tab-content active">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>📋 予定件数</h3>
+                        <span class="stat-number" id="totalPlans">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>✅ 完了</h3>
+                        <span class="stat-number" id="completedPlans">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🎯 成約</h3>
+                        <span class="stat-number" id="successPlans">0</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="optimizeRouteBtn" class="btn btn-primary">
+                        🗺️ 最短ルート計算
+                    </button>
+                    <button id="addVisitBtn" class="btn btn-secondary">
+                        ➕ 訪問先追加
+                    </button>
+                </div>
+
+                <div id="visitList" class="visit-list">
+                    <!-- 訪問リストが動的に生成される -->
+                </div>
+            </div>
+
+            <!-- 地図タブ -->
+            <div id="map" class="tab-content">
+                <div id="mapContainer" style="height: 500px; width: 100%;"></div>
+                <div class="map-controls">
+                    <button id="showMyLocation" class="btn btn-small">📍 現在地</button>
+                    <button id="showAllVisits" class="btn btn-small">🏠 全訪問先</button>
+                </div>
+            </div>
+
+            <!-- 履歴タブ -->
+            <div id="history" class="tab-content">
+                <div class="history-filters">
+                    <input type="date" id="historyDate" class="input">
+                    <select id="historyStatus" class="select">
+                        <option value="">全ステータス</option>
+                        <option value="成約">成約</option>
+                        <option value="失注">失注</option>
+                        <option value="見込み">見込み</option>
+                        <option value="留守">留守</option>
+                    </select>
+                    <button id="searchHistory" class="btn btn-secondary">🔍 検索</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <!-- 履歴リストが動的に生成される -->
+                </div>
+            </div>
+
+            <!-- 分析タブ -->
+            <div id="analytics" class="tab-content">
+                <div class="analytics-cards">
+                    <div class="analytics-card">
+                        <h3>📊 成約率</h3>
+                        <div class="chart-placeholder">
+                            <span class="big-number" id="conversionRate">0%</span>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>📈 月間実績</h3>
+                        <div class="chart-placeholder">
+                            <span class="big-number" id="monthlyResults">0件</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 訪問詳細モーダル -->
+        <div id="visitModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">訪問詳細</h2>
+                <form id="visitForm">
+                    <div class="form-group">
+                        <label>物件名:</label>
+                        <span id="propertyName"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>住所:</label>
+                        <span id="propertyAddress"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitStatus">訪問結果:</label>
+                        <select id="visitStatus" class="select" required>
+                            <option value="">選択してください</option>
+                            <option value="成約">🎉 成約</option>
+                            <option value="見込み">💡 見込み</option>
+                            <option value="失注">❌ 失注</option>
+                            <option value="留守">🏠 留守</option>
+                            <option value="再訪問">🔄 再訪問</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitMemo">メモ:</label>
+                        <textarea id="visitMemo" class="textarea" placeholder="訪問の詳細や次回への申し送りを記入"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="nextVisitDate">次回訪問予定:</label>
+                        <input type="date" id="nextVisitDate" class="input">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">💾 保存</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
